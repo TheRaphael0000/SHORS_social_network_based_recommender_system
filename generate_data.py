@@ -6,46 +6,35 @@ import collections
 import random
 
 
-def generate_skills(skills_sets, N, min_skill_sets, max_skill_sets, min_edits, max_edits):
+def generate_skills(all_skills, skills_sets, N, min_skill_sets, max_skill_sets, min_edits, max_edits):
     users_skills = []
 
-    for i in range(N):
+    for _ in range(N):
+        user_skills = np.zeros((len(all_skills)), dtype=bool)
 
         nb_skill_sets = np.random.randint(min_skill_sets, max_skill_sets)
         skills_sets_indices = np.random.choice(
             range(len(skills_sets)), nb_skill_sets)
 
-        user_skills = []
-        other_skills = []
-        for i, s in enumerate(skills_sets):
-            if i in skills_sets_indices:
-                user_skills.extend(list(s))
-            else:
-                other_skills.extend(list(s))
+        for s in skills_sets_indices:
+            skill_set = skills_sets[s]
+            for skill in skill_set:
+                i = all_skills.index(skill)
+                user_skills[i] = True
 
         nb_edits = np.random.randint(min_edits, max_edits)
-        for e in range(nb_edits):
+        for _ in range(nb_edits):
+            # flip a random bit
+            nbTrue = user_skills.sum()
+            nbFalse = len(user_skills) - nbTrue
 
-            def add():
-                new_skill = np.random.choice(other_skills)
-                other_skills.remove(new_skill)
-                user_skills.append(new_skill)
+            a = np.zeros((len(user_skills)))
+            a[user_skills] = nbTrue
+            a[np.logical_not(user_skills)] = nbFalse
+            p = np.full((len(user_skills)), 0.5) / a
 
-            def remove():
-                skill_to_remove = np.random.choice(user_skills)
-                user_skills.remove(skill_to_remove)
-                other_skills.append(skill_to_remove)
-
-            if len(user_skills) <= 0:
-                add()
-            elif len(other_skills) <= 0:
-                remove()
-            else:
-                r = np.random.random()
-                if r > 0.5:
-                    add()
-                else:
-                    remove()
+            i = np.random.choice(range(len(all_skills)), p=p)
+            user_skills[i] ^= True
 
         users_skills.append(user_skills)
 
