@@ -1,3 +1,6 @@
+*.png
+
+
 # Editors
 .vscode/
 .idea/
