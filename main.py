@@ -1,12 +1,11 @@
 import numpy as np
-import itertools
 import networkx as nx
 import matplotlib.pyplot as plt
-import collections
-from scipy.spatial.distance import pdist, dice
+from scipy.spatial.distance import dice
 
 from generate_data import generate_skills, generate_graph
 from similarity import skills_similarity, user_similarity
+from clustering import clustering, get_distance_to_center
 
 
 np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
@@ -18,6 +17,7 @@ skills_sets = [
     ["Python", "R"],  # Statistics
     ["bash", "zsh", "sh", "batch"],  # Scripting / Shells
     ["JavaScript", "HTML", "CSS", "PHP"],  # Web
+    ["SAP", "Microsoft Dynamics", "Odoo", "Spreadsheet"],  # Management
 ]
 all_skills = list()
 for ss in skills_sets:
@@ -41,6 +41,10 @@ set_distance_function = dice
 users_skills = generate_skills(
     all_skills, skills_sets, N, min_skill_sets, max_skill_sets, min_edits, max_edits)
 
+
+model = clustering(users_skills, range(2, 15), True)
+users_distances_to_centers = get_distance_to_center(
+    users_skills, model.cluster_centers_)
 
 # Generate graph
 G = generate_graph(N, K, P, seed)
