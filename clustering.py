@@ -2,15 +2,14 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import davies_bouldin_score, silhouette_score
 from matplotlib import pyplot as plt
 import math
-from scipy.spatial.distance import cdist
-
 
 
 def clustering(users_skills, n_clusters_range, plot=False):
     X = users_skills
 
     plotX = []
-    plotY = []
+    plotY_d = []
+    plotY_s = []
 
     # Record the best clustering
     best_d = math.inf
@@ -28,21 +27,21 @@ def clustering(users_skills, n_clusters_range, plot=False):
             best_model = kmeans
 
         plotX.append(n)
-        plotY.append(d)
+        plotY_d.append(d)
+        plotY_s.append(s)
 
     if plot:
-        plt.xlabel("Nb clusters")
-        plt.ylabel("davies_bouldin_score")
-        plt.plot(plotX, plotY)
-        plt.savefig("find_n_clusters_plot.png")
+        fig, ax1 = plt.subplots()
+        ax1.set_xlabel("Nb clusters")
+        ax2 = ax1.twinx()
+        color1 = "tab:blue"
+        color2 = "tab:orange"
+        ax1.plot(plotX, plotY_d, label="davies_bouldin_score", color=color1)
+        ax1.set_ylabel("davies_bouldin_score", color=color1)
+        ax2.plot(plotX, plotY_s, label="silhouette_score", color=color2)
+        ax2.set_ylabel("silhouette_score", color=color2)
+        fig.legend()
+        fig.tight_layout()
+        fig.savefig("find_n_clusters_plot.png")
 
     return best_model
-
-def get_distance_to_center(users_skills, centers):
-    users_distances_to_centers = []
-    for user_skills in users_skills:
-        user_skills = [user_skills]
-        distances = cdist(user_skills, centers)
-        users_distances_to_centers.append(distances[0])
-
-    return users_distances_to_centers

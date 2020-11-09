@@ -2,10 +2,11 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import dice
+from scipy.spatial.distance import cdist
 
 from generate_data import generate_skills, generate_graph
 from similarity import skills_similarity, user_similarity
-from clustering import clustering, get_distance_to_center
+from clustering import clustering
 
 
 np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
@@ -43,20 +44,22 @@ users_skills = generate_skills(
 
 
 model = clustering(users_skills, range(2, 15), True)
-users_distances_to_centers = get_distance_to_center(
-    users_skills, model.cluster_centers_)
+# Possible distances metrics : "braycurtis", "canberra", "chebyshev", "cityblock", "correlation", "cosine", "dice", "euclidean", "hamming", "jaccard", "jensenshannon", "kulsinski", "mahalanobis", "matching", "minkowski", "rogerstanimoto", "russellrao", "seuclidean", "sokalmichener", "sokalsneath", "sqeuclidean", "wminkowski", "yule".
+users_distances_to_centers = cdist(
+    users_skills, model.cluster_centers_, metric="cosine")
 
 # Generate graph
 G = generate_graph(N, K, P, seed)
 
-skills_similarity_matrix = skills_similarity(all_skills, users_skills)
+# skills_similarity_matrix = skills_similarity(all_skills, users_skills)
+#
+# user_similarity_matrix = user_similarity(
+#     all_skills, users_skills, set_distance_function)
 
-user_similarity_matrix = user_similarity(
-    all_skills, users_skills, set_distance_function)
-
-print(skills_similarity_matrix)
-print(user_similarity_matrix)
+# print(skills_similarity_matrix)
+# print(user_similarity_matrix)
 
 # print(G.nodes)
+plt.figure(figsize=(20, 20))
 nx.draw(G)
 plt.savefig("graph.png")
