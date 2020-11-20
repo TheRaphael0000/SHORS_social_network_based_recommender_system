@@ -8,6 +8,8 @@ from generate_data import generate_skills, generate_graph
 from similarity import skills_similarity, user_similarity
 from clustering import clustering
 
+from misc import plot_graph
+
 
 np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
 
@@ -27,7 +29,7 @@ for ss in skills_sets:
 seed = 42  # Seed for random number generation
 np.random.seed(seed)
 
-N = 1000  # The number of nodes
+N = 200  # The number of nodes
 K = 4  # Each node is connected to k nearest neighbors in ring topology
 P = 0.2  # The probability of rewiring each edge
 
@@ -38,28 +40,46 @@ max_edits = 3  # Maximal of random edition of the user skill sets
 
 set_distance_function = dice
 
-# Generate skills
+print("Generating skills")
 users_skills = generate_skills(
     all_skills, skills_sets, N, min_skill_sets, max_skill_sets, min_edits, max_edits)
 
-
-model = clustering(users_skills, range(2, 15), True)
-# Possible distances metrics : "braycurtis", "canberra", "chebyshev", "cityblock", "correlation", "cosine", "dice", "euclidean", "hamming", "jaccard", "jensenshannon", "kulsinski", "mahalanobis", "matching", "minkowski", "rogerstanimoto", "russellrao", "seuclidean", "sokalmichener", "sokalsneath", "sqeuclidean", "wminkowski", "yule".
-users_distances_to_centers = cdist(
-    users_skills, model.cluster_centers_, metric="cosine")
-
-# Generate graph
+print("Generating graph")
 G = generate_graph(N, K, P, seed)
 
-# skills_similarity_matrix = skills_similarity(all_skills, users_skills)
-#
-# user_similarity_matrix = user_similarity(
-#     all_skills, users_skills, set_distance_function)
+print("Clustering")
+model = clustering(users_skills, range(2, 10), True)
+# Possible distances metrics : "braycurtis", "canberra", "chebyshev", "cityblock", "correlation", "cosine", "dice", "euclidean", "hamming", "jaccard", "jensenshannon", "kulsinski", "mahalanobis", "matching", "minkowski", "rogerstanimoto", "russellrao", "seuclidean", "sokalmichener", "sokalsneath", "sqeuclidean", "wminkowski", "yule".
+# users_distances_to_centers = cdist(
+#     users_skills, model.cluster_centers_, metric="cosine")
+nb_clusters_found = len(model.cluster_centers_)
+print("Number of clusters found", nb_clusters_found)
 
-# print(skills_similarity_matrix)
-# print(user_similarity_matrix)
+zero_nodes = [n for n in G.nodes if model.labels_[n] == 0]
+G_Zero = G.subgraph(zero_nodes)
+
+from networkx.algorithms.community.centrality import girvan_newman
+g = girvan_newman(G)
+comp = None
+i = 0
+for comp in g:
+    i += 1
+    if i > 1:
+        break
+colors = []
+for i in range(N):
+    if i in comp[0]:
+        colors.append(0)
+    if i in comp[1]:
+        colors.append(1)
+    if i in comp[2]:
+        colors.append(2)
+print(comp)
+print(colors)
+
+print("Plotting graph")
 
 # print(G.nodes)
-plt.figure(figsize=(20, 20))
-nx.draw(G)
-plt.savefig("graph.png")
+
+# plot_graph(G_Zero, colors=[0] * len(G_Zero.nodes))
+plot_graph(G, colors=colors)

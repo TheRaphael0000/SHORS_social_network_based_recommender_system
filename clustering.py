@@ -12,7 +12,7 @@ def clustering(users_skills, n_clusters_range, plot=False):
     plotY_s = []
 
     # Record the best clustering
-    best_d = math.inf
+    best_s = -math.inf
     best_model = None
 
     # Find the best number of clusters
@@ -22,8 +22,8 @@ def clustering(users_skills, n_clusters_range, plot=False):
         d = davies_bouldin_score(X, kmeans.labels_)
         s = silhouette_score(X, kmeans.labels_)
 
-        if d < best_d:
-            best_d = d
+        if s > best_s:
+            best_s = s
             best_model = kmeans
 
         plotX.append(n)
