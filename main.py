@@ -1,14 +1,10 @@
 import numpy as np
-import networkx as nx
-import matplotlib.pyplot as plt
 from scipy.spatial.distance import dice
-from scipy.spatial.distance import cdist
 
 from generate_data import generate_skills, generate_graph
-from similarity import skills_similarity, user_similarity
 from clustering import clustering
-
 from misc import plot_graph
+from recommender import link_prediction
 
 
 np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
@@ -55,31 +51,8 @@ model = clustering(users_skills, range(2, 10), True)
 nb_clusters_found = len(model.cluster_centers_)
 print("Number of clusters found", nb_clusters_found)
 
-zero_nodes = [n for n in G.nodes if model.labels_[n] == 0]
-G_Zero = G.subgraph(zero_nodes)
+print("Link prediction")
+new_links = link_prediction(G, users_skills)
 
-from networkx.algorithms.community.centrality import girvan_newman
-g = girvan_newman(G)
-comp = None
-i = 0
-for comp in g:
-    i += 1
-    if i > 1:
-        break
-colors = []
-for i in range(N):
-    if i in comp[0]:
-        colors.append(0)
-    if i in comp[1]:
-        colors.append(1)
-    if i in comp[2]:
-        colors.append(2)
-print(comp)
-print(colors)
-
-print("Plotting graph")
-
-# print(G.nodes)
-
-# plot_graph(G_Zero, colors=[0] * len(G_Zero.nodes))
-plot_graph(G, colors=colors)
+# print("Plotting graph")
+# plot_graph(G, colors=model.labels_)
