@@ -1,10 +1,10 @@
 import numpy as np
-from scipy.spatial.distance import dice
+from scipy.spatial.distance import dice, cdist
 
 from generate_data import generate_skills, generate_graph
 from clustering import clustering
 from misc import plot_graph
-from recommender import link_prediction
+from recommender import predict_links, link_prediction
 
 
 np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
@@ -44,15 +44,18 @@ print("Generating graph")
 G = generate_graph(N, K, P, seed)
 
 print("Clustering")
-model = clustering(users_skills, range(2, 10), True)
+clustering_model = clustering(users_skills, range(2, 10), True)
 # Possible distances metrics : "braycurtis", "canberra", "chebyshev", "cityblock", "correlation", "cosine", "dice", "euclidean", "hamming", "jaccard", "jensenshannon", "kulsinski", "mahalanobis", "matching", "minkowski", "rogerstanimoto", "russellrao", "seuclidean", "sokalmichener", "sokalsneath", "sqeuclidean", "wminkowski", "yule".
-# users_distances_to_centers = cdist(
-#     users_skills, model.cluster_centers_, metric="cosine")
-nb_clusters_found = len(model.cluster_centers_)
+users_distances_to_centers = cdist(
+    users_skills, clustering_model.cluster_centers_, metric="euclidean")
+nb_clusters_found = len(clustering_model.cluster_centers_)
 print("Number of clusters found", nb_clusters_found)
 
-print("Link prediction")
-new_links = link_prediction(G, users_skills)
-
 # print("Plotting graph")
-# plot_graph(G, colors=model.labels_)
+# plot_graph(G, "graph2.png", colors=model.labels_)
+
+print("Link prediction")
+link_prediction_model = link_prediction(G, users_distances_to_centers)
+
+predictions = predict_links(link_prediction_model, G, 0, users_distances_to_centers)
+print(predictions)
