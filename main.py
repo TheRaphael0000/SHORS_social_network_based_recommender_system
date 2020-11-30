@@ -2,7 +2,7 @@ import numpy as np
 from scipy.spatial.distance import dice, cdist
 
 from generate_data import generate_skills, generate_graph
-from clustering import clustering
+from clustering import clustering, evaluate_clustering
 from misc import plot_graph
 from recommender import predict_links, link_prediction
 
@@ -18,11 +18,8 @@ skills_sets = [
     ["JavaScript", "HTML", "CSS", "PHP"],  # Web
     ["SAP", "Microsoft Dynamics", "Odoo", "Spreadsheet"],  # Management
 ]
-all_skills = list()
-for ss in skills_sets:
-    all_skills += ss
 
-seed = 42  # Seed for random number generation
+seed = int(np.pi * 42)  # Seed for random number generation
 np.random.seed(seed)
 
 N = 200  # The number of nodes
@@ -37,8 +34,8 @@ max_edits = 3  # Maximal of random edition of the user skill sets
 set_distance_function = dice
 
 print("Generating skills")
-users_skills = generate_skills(
-    all_skills, skills_sets, N, min_skill_sets, max_skill_sets, min_edits, max_edits)
+users_skills, clusters_ground_truth = generate_skills(
+    skills_sets, N, min_skill_sets, max_skill_sets, min_edits, max_edits)
 
 print("Generating graph")
 G = generate_graph(N, K, P, seed)
@@ -47,9 +44,12 @@ print("Clustering")
 clustering_model = clustering(users_skills, range(2, 10), True)
 # Possible distances metrics : "braycurtis", "canberra", "chebyshev", "cityblock", "correlation", "cosine", "dice", "euclidean", "hamming", "jaccard", "jensenshannon", "kulsinski", "mahalanobis", "matching", "minkowski", "rogerstanimoto", "russellrao", "seuclidean", "sokalmichener", "sokalsneath", "sqeuclidean", "wminkowski", "yule".
 users_distances_to_centers = cdist(
-    users_skills, clustering_model.cluster_centers_, metric="euclidean")
+    users_skills, clustering_model.cluster_centers_, metric="minkowski")
 nb_clusters_found = len(clustering_model.cluster_centers_)
 print("Number of clusters found", nb_clusters_found)
+print("Real number of clusters", len(skills_sets))
+
+evaluate_clustering(clusters_ground_truth, clustering_model.labels_)
 
 # print("Plotting graph")
 # plot_graph(G, "graph2.png", colors=model.labels_)
@@ -57,5 +57,6 @@ print("Number of clusters found", nb_clusters_found)
 print("Link prediction")
 link_prediction_model = link_prediction(G, users_distances_to_centers)
 
-predictions = predict_links(link_prediction_model, G, 0, users_distances_to_centers)
+predictions = predict_links(link_prediction_model,
+                            G, 0, users_distances_to_centers)
 print(predictions)

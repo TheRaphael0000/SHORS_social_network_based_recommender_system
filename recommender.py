@@ -46,14 +46,16 @@ def predict_links(model, G, node, users_distances_to_centers):
     # every nodes - himself - it's neighbors
     possible_new_nodes = set(G.nodes) - {node} - set(G.neighbors(node))
     # create the links
-    edges = [(node, possible_new_node) for possible_new_node in possible_new_nodes]
+    edges = [(node, possible_new_node)
+             for possible_new_node in possible_new_nodes]
     # generate the according features
     X = generate_links_features(edges, G, users_distances_to_centers)
     X = pd.DataFrame(X)
 
     predicted = model.predict(X)
-    predictions = np.array(edges)[np.array(predicted)][:,1]
+    predictions = np.array(edges)[np.array(predicted)][:, 1]
     return predictions
+
 
 def generate_neg_edges(G):
     pos_edges = set(G.edges)

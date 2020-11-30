@@ -6,8 +6,13 @@ import collections
 import random
 
 
-def generate_skills(all_skills, skills_sets, N, min_skill_sets, max_skill_sets, min_edits, max_edits):
+def generate_skills(skills_sets, N, min_skill_sets, max_skill_sets, min_edits, max_edits):
+    all_skills = list()
+    for ss in skills_sets:
+        all_skills += ss
+
     users_skills = []
+    clusters_ground_truth = []
 
     for _ in range(N):
         user_skills = np.zeros((len(all_skills)), dtype=bool)
@@ -37,8 +42,9 @@ def generate_skills(all_skills, skills_sets, N, min_skill_sets, max_skill_sets, 
             user_skills[i] ^= True
 
         users_skills.append(user_skills)
+        clusters_ground_truth.append(skills_sets_indices[0])
 
-    return users_skills
+    return users_skills, clusters_ground_truth
 
 
 def generate_graph(N, K, P, seed):
