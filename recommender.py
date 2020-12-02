@@ -24,7 +24,7 @@ def link_prediction(G, users_distances_to_centers):
 
     print(X)
 
-    rfc = RandomForestClassifier()
+    rfc = RandomForestClassifier(n_estimators=600)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.33, random_state=42)
@@ -114,11 +114,19 @@ def generate_links_features(edges, G, users_distances_to_centers):
 
 
 def jaccard(a, b):
-    return len(a.intersection(b)) / len(a.union(b))
+    num = len(a.intersection(b))
+    den = len(a.union(b))
+    if den <= 0:
+        return 0
+    return num / den
 
 
 def cosine(a, b):
-    return len(a.union(b)) / (len(a) * len(b))**(0.5)
+    num = len(a.union(b))
+    den = (len(a) * len(b))**(0.5)
+    if den <= 0:
+        return 0
+    return num / den
 
 
 def adar_index(G, a, b):

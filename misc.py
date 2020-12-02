@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 
-def plot_graph(G, name, colors):
+def plot_graph(G, name, colors=[]):
     plt.figure(figsize=(8, 8))
     pos = nx.spring_layout(G)
     nx.draw_networkx_nodes(G, pos=pos, node_color=colors,
@@ -11,3 +11,4 @@ def plot_graph(G, name, colors):
     plt.tight_layout()
     plt.axis("off")
     plt.savefig(name)
+    # plt.show()
