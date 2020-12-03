@@ -9,6 +9,8 @@ import collections
 def clustering(users_skills, n_clusters_range, plot=False):
     X = users_skills
 
+    n_clusters_range = list(n_clusters_range)
+
     plotX = []
 
     methods = {
@@ -46,6 +48,7 @@ def clustering(users_skills, n_clusters_range, plot=False):
             plt.figure()
             plt.title(f"{method_str} over number of clusters")
             plt.xlabel("Nb clusters")
+            plt.xticks(n_clusters_range)
             plt.ylabel(method_str)
             plt.plot(plotX, Y)
             plt.tight_layout()

@@ -13,10 +13,10 @@ np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
 skills_sets = [
     ["Assembly", "C", "C++", "Rust"],  # System
     ["Java", "C#", "Go"],  # OOP
-    ["Python", "R"],  # Statistics
-    ["bash", "zsh", "sh", "batch"],  # Scripting / Shells
-    ["JavaScript", "HTML", "CSS", "PHP"],  # Web
-    ["SAP", "Microsoft Dynamics", "Odoo", "Spreadsheet"],  # Management
+    # ["Python", "R"],  # Statistics
+    # ["bash", "zsh", "sh", "batch"],  # Scripting / Shells
+    # ["JavaScript", "HTML", "CSS", "PHP"],  # Web
+    # ["SAP", "Microsoft Dynamics", "Odoo", "Spreadsheet"],  # Management
 ]
 
 seed = int(np.pi * 42)  # Seed for random number generation
@@ -39,7 +39,7 @@ print("Generating graph")
 G = generate_graph(clusters_ground_truth)
 
 print("Clustering")
-clustering_model = clustering(users_skills, range(2, 10), True)
+clustering_model = clustering(users_skills, range(2, 7), True)
 
 nb_clusters_found = len(clustering_model.cluster_centers_)
 print("Number of clusters found", nb_clusters_found)
