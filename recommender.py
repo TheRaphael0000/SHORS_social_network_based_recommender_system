@@ -6,7 +6,9 @@ import networkx as nx
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score
+
 from sklearn.model_selection import GridSearchCV
+
 from operator import mul
 from functools import reduce
 
@@ -22,7 +24,8 @@ def link_prediction(G, users_distances_to_centers):
 
     edges = neg_edges + pos_edges
     y = [False] * len(neg_edges) + [True] * len(pos_edges)
-    X, cluster_names = generate_links_features(edges, G, users_distances_to_centers)
+    X, cluster_names = generate_links_features(
+        edges, G, users_distances_to_centers)
     X = pd.DataFrame(X)
 
     print("- Features")
@@ -32,15 +35,14 @@ def link_prediction(G, users_distances_to_centers):
         X, y, test_size=0.33, random_state=42)
 
     # best params found using GridSearch
-    best_params = {'criterion': 'entropy', 'max_depth': 8,
-                   'max_features': 'log2', 'n_estimators': 100}
+    best_params = {'criterion': 'gini', 'max_depth': 5, 'max_features': None, 'n_estimators': 200}
 
     model = RandomForestClassifier(**best_params)
 
     # parameters = {
     #     "n_estimators": np.arange(50, 400, 50),
     #     "criterion": ["gini", "entropy"],
-    #     "max_features": ["sqrt", "log2"],
+    #     "max_features": ["sqrt", "log2", None],
     #     "max_depth": np.arange(2, 10, 1),
     # }
     # print("Number of runs :", reduce(
@@ -76,7 +78,8 @@ def predict_links(model, G, node, users_distances_to_centers):
     edges = [(node, possible_new_node)
              for possible_new_node in possible_new_nodes]
     # generate the according features
-    X, cluster_names = generate_links_features(edges, G, users_distances_to_centers)
+    X, cluster_names = generate_links_features(
+        edges, G, users_distances_to_centers)
     X = pd.DataFrame(X)
 
     # transform the result
@@ -98,7 +101,8 @@ def predict_links(model, G, node, users_distances_to_centers):
     predictions_scores = dict(zip(predictions, scores))
 
     # rank the results
-    predictions_sorted = sorted(predictions_scores, key=lambda k: predictions_scores[k])
+    predictions_sorted = sorted(
+        predictions_scores, key=lambda k: predictions_scores[k])
     scores = [predictions_scores[k] for k in predictions_sorted]
 
     return np.array(predictions_sorted), np.array(scores)

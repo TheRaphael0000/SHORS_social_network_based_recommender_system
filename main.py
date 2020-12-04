@@ -3,7 +3,6 @@ from scipy.spatial.distance import dice, cdist
 
 from generate_data import generate_skills, generate_graph
 from clustering import clustering, evaluate_clustering
-from misc import plot_graph
 from recommender import predict_links, link_prediction
 from visualization import visualization
 
@@ -23,7 +22,7 @@ skills_sets = [
 seed = int(np.pi * 42)  # Seed for random number generation
 np.random.seed(seed)
 
-N = 100  # The number of nodes
+N = 500  # The number of nodes
 
 min_skill_sets = 1  # The minimum of skills set to add to a user
 max_skill_sets = 2  # The maximal of skills set to add to a user
