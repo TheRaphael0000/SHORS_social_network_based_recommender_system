@@ -5,6 +5,7 @@ from generate_data import generate_skills, generate_graph
 from clustering import clustering, evaluate_clustering
 from misc import plot_graph
 from recommender import predict_links, link_prediction
+from visualization import visualization
 
 
 np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
@@ -13,10 +14,10 @@ np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
 skills_sets = [
     ["Assembly", "C", "C++", "Rust"],  # System
     ["Java", "C#", "Go"],  # OOP
-    # ["Python", "R"],  # Statistics
-    # ["bash", "zsh", "sh", "batch"],  # Scripting / Shells
-    # ["JavaScript", "HTML", "CSS", "PHP"],  # Web
-    # ["SAP", "Microsoft Dynamics", "Odoo", "Spreadsheet"],  # Management
+    ["Python", "R"],  # Statistics
+    ["bash", "zsh", "sh", "batch"],  # Scripting / Shells
+    ["JavaScript", "HTML", "CSS", "PHP"],  # Web
+    ["SAP", "Microsoft Dynamics", "Odoo", "Spreadsheet"],  # Management
 ]
 
 seed = int(np.pi * 42)  # Seed for random number generation
@@ -42,21 +43,21 @@ print("Clustering")
 clustering_model = clustering(users_skills, range(2, 7), True)
 
 nb_clusters_found = len(clustering_model.cluster_centers_)
-print("Number of clusters found", nb_clusters_found)
-print("Real number of clusters", len(skills_sets))
+print("- Number of clusters found", nb_clusters_found)
+print("- Real number of clusters", len(skills_sets))
 
 # Possible distances metrics : "cityblock", "dice", "euclidean", "jaccard", "minkowski"
 users_distances_to_centers = cdist(users_skills, clustering_model.cluster_centers_, metric="euclidean")
 
 evaluate_clustering(clusters_ground_truth, clustering_model.labels_)
 
-print("Plotting graph")
-print(len(G.edges))
-plot_graph(G, "graph.png", colors=clustering_model.labels_)
+# print("Plotting graph")
+# plot_graph(G, "graph.png", colors=clustering_model.labels_)
 
 print("Link prediction")
 link_prediction_model = link_prediction(G, users_distances_to_centers)
 
-predictions = predict_links(link_prediction_model,
-                            G, 0, users_distances_to_centers)
-print(predictions)
+# predictions = predict_links(link_prediction_model,
+#                             G, 0, users_distances_to_centers)
+# print(predictions)
+visualization(link_prediction_model, G, users_distances_to_centers)

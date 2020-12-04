@@ -5,7 +5,10 @@ import numpy as np
 import networkx as nx
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, precision_score, recall_score
+from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score
+from sklearn.model_selection import GridSearchCV
+from operator import mul
+from functools import reduce
 
 
 def link_prediction(G, users_distances_to_centers):
@@ -22,24 +25,48 @@ def link_prediction(G, users_distances_to_centers):
     X = generate_links_features(edges, G, users_distances_to_centers)
     X = pd.DataFrame(X)
 
+    print("- Features")
     print(X)
-
-    rfc = RandomForestClassifier(n_estimators=600)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.33, random_state=42)
 
-    print("- Fitting")
-    rfc.fit(X_train, y_train)
+    # best params found using GridSearch
+    best_params = {'criterion': 'entropy', 'max_depth': 8,
+                   'max_features': 'log2', 'n_estimators': 100}
 
-    print("n_features_", rfc.n_features_)
+    model = RandomForestClassifier(**best_params)
+
+    # parameters = {
+    #     "n_estimators": np.arange(50, 400, 50),
+    #     "criterion": ["gini", "entropy"],
+    #     "max_features": ["sqrt", "log2"],
+    #     "max_depth": np.arange(2, 10, 1),
+    # }
+    # print("Number of runs :", reduce(
+    #     mul, [len(pl) for pl in parameters.values()], 1))
+    # model = GridSearchCV(model, parameters, n_jobs=-1, scoring="f1")
+
+    print("- Fitting")
+    model.fit(X_train, y_train)
+
+    print("- Training results")
+    predicted = model.predict(X_train)
+    print(confusion_matrix(y_train, predicted))
+    print("Precision", precision_score(y_train, predicted))
+    print("Recall", recall_score(y_train, predicted))
+    print("F1-Score", f1_score(y_train, predicted))
+
+    if hasattr(model, "best_params_"):
+        print(model.best_params_)
 
     print("- Predicting")
-    predicted = rfc.predict(X_test)
+    predicted = model.predict(X_test)
     print(confusion_matrix(y_test, predicted))
     print("Precision", precision_score(y_test, predicted))
     print("Recall", recall_score(y_test, predicted))
-    return rfc
+    print("F1-Score", f1_score(y_test, predicted))
+    return model
 
 
 def predict_links(model, G, node, users_distances_to_centers):
@@ -61,8 +88,9 @@ def generate_neg_edges(G):
     pos_edges = set(G.edges)
     nodes = list(G.nodes)
     previously_found = set()
-    # it can never stop if the graph has more than half of edge of the complete graph
-    # (really unlikely in a social graph)
+    # it can never stop if the graph has more than
+    # half of edge of the complete graph
+    # (really unlikely in a social graph, since it's really sparse)
     while True:
         a = np.random.choice(nodes)
         b = np.random.choice(nodes)
