@@ -22,7 +22,7 @@ def link_prediction(G, users_distances_to_centers):
 
     edges = neg_edges + pos_edges
     y = [False] * len(neg_edges) + [True] * len(pos_edges)
-    X = generate_links_features(edges, G, users_distances_to_centers)
+    X, cluster_names = generate_links_features(edges, G, users_distances_to_centers)
     X = pd.DataFrame(X)
 
     print("- Features")
@@ -76,12 +76,32 @@ def predict_links(model, G, node, users_distances_to_centers):
     edges = [(node, possible_new_node)
              for possible_new_node in possible_new_nodes]
     # generate the according features
-    X = generate_links_features(edges, G, users_distances_to_centers)
+    X, cluster_names = generate_links_features(edges, G, users_distances_to_centers)
     X = pd.DataFrame(X)
 
-    predicted = model.predict(X)
-    predictions = np.array(edges)[np.array(predicted)][:, 1]
-    return predictions
+    # transform the result
+    predicted = np.array(model.predict(X))
+    predictions = np.array(edges)[predicted][:, 1]
+
+    # ranking the results based on the similarity
+
+    # filter only the predictions
+    p = X[predicted]
+    # keep only the clusters distances columns
+    p = p[cluster_names]
+    # sum the columns
+    p = p.sum(axis=1)
+
+    # convert to lists
+    scores = list(p)
+    predictions = list(predictions)
+    predictions_scores = dict(zip(predictions, scores))
+
+    # rank the results
+    predictions_sorted = sorted(predictions_scores, key=lambda k: predictions_scores[k])
+    scores = [predictions_scores[k] for k in predictions_sorted]
+
+    return np.array(predictions_sorted), np.array(scores)
 
 
 def generate_neg_edges(G):
@@ -122,23 +142,26 @@ def generate_link_features(edge, G, users_distances_to_centers):
     dist_to_centers_a = users_distances_to_centers[a]
     dist_to_centers_b = users_distances_to_centers[b]
 
+    cluster_names = []
     for i, (dist_a, dist_b) in enumerate(zip(dist_to_centers_a, dist_to_centers_b)):
-        d = np.abs(dist_b - dist_a)
-        link_features["cluster_" + str(i)] = d
+        d = (dist_b - dist_a)**2
+        cluster_name = "cluster_" + str(i)
+        link_features[cluster_name] = d
+        cluster_names.append(cluster_name)
 
-    return link_features
+    return link_features, cluster_names
 
 
 def generate_links_features(edges, G, users_distances_to_centers):
     features = defaultdict(lambda: [])
 
     for edge in edges:
-        link_features = generate_link_features(
+        link_features, cluster_names = generate_link_features(
             edge, G, users_distances_to_centers)
         for feature_name, feature_value in link_features.items():
             features[feature_name].append(feature_value)
 
-    return features
+    return features, cluster_names
 
 
 def jaccard(a, b):

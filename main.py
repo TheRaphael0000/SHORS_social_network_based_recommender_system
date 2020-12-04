@@ -23,7 +23,7 @@ skills_sets = [
 seed = int(np.pi * 42)  # Seed for random number generation
 np.random.seed(seed)
 
-N = 400  # The number of nodes
+N = 300  # The number of nodes
 
 min_skill_sets = 1  # The minimum of skills set to add to a user
 max_skill_sets = 2  # The maximal of skills set to add to a user
@@ -57,7 +57,9 @@ evaluate_clustering(clusters_ground_truth, clustering_model.labels_)
 print("Link prediction")
 link_prediction_model = link_prediction(G, users_distances_to_centers)
 
-# predictions = predict_links(link_prediction_model,
+# predictions, scores = predict_links(link_prediction_model,
 #                             G, 0, users_distances_to_centers)
 # print(predictions)
+# print(scores)
+
 visualization(link_prediction_model, G, users_distances_to_centers)

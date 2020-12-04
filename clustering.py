@@ -53,6 +53,7 @@ def clustering(users_skills, n_clusters_range, plot=False):
             plt.plot(plotX, Y)
             plt.tight_layout()
             plt.savefig(f"clustering_{method_str}.png")
+            plt.close()
 
     # making the metrics vote on a number of cluster to choose
     aggregated_best_n = collections.Counter(best_n.values())

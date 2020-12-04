@@ -49,7 +49,7 @@ def generate_skills(skills_sets, N, min_skill_sets, max_skill_sets, min_edits, m
     return users_skills, clusters_ground_truth
 
 
-def generate_graph(clusters_ground_truth, cluster_boost=1.5, m=3):
+def generate_graph(clusters_ground_truth, cluster_boost=3, m=2):
     """Creating a graph according to the PREFERENTIAL ATTACHMENT MODEL
     for a social graph alike"""
     G = nx.Graph()
@@ -79,5 +79,7 @@ def generate_graph(clusters_ground_truth, cluster_boost=1.5, m=3):
             P = np.delete(P, potential_node)
             if len(candidates) <= 0:
                 break
+
+    print(len(G.edges), len(G.nodes))
 
     return G
