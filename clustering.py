@@ -1,11 +1,12 @@
+import collections
+
+import numpy as np
+import skfuzzy as fuzz
+from matplotlib import pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.metrics import davies_bouldin_score, silhouette_score, calinski_harabasz_score
 from sklearn.metrics import normalized_mutual_info_score
-from matplotlib import pyplot as plt
-import numpy as np
-import collections
-import skfuzzy as fuzz
-from fcmeans import FCM
+
 
 def clustering(users_skills, n_clusters_range, plot=False):
     X = users_skills
@@ -96,8 +97,11 @@ def fzclustering(users_skills, n_clusters_range, plot=False):
         cntr, u, u0, d, jm, p, fpc = fuzz.cluster.cmeans(
             X, n, 2, error=0.005, maxiter=50, init=None)
 
-        fzmodels[n] = cntr, u, u0, d, jm, p, fpc
+        # labels_
+        cluster_membership = np.argmax(u, axis=0)
 
-    best_centers = max(fzmodels.values(), key=lambda x:x[6])
+        fzmodels[n] = cntr, u, u0, d, jm, p, fpc, cluster_membership
+
+    best_centers = min(fzmodels.values(), key=lambda x: x[6])
 
     return best_centers

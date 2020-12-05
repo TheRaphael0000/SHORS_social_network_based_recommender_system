@@ -60,7 +60,7 @@ evaluate_clustering(clusters_ground_truth, clustering_model.labels_)
 
 # print("Plotting graph")
 plot_graph(G, "graph.png", colors=clustering_model.labels_)
-#plot_graph(G, "graph_fuzzy.png", colors=fuzzyclustering_model[4])
+#plot_graph(G, "graph_fuzzy.png", colors=fuzzyclustering_model[7])
 
 
 print("Link prediction")
@@ -72,6 +72,6 @@ link_prediction_model_fuzzy = link_prediction(G, users_distances_to_centers_fuzz
 # print(predictions)
 # print(scores)
 
-visualization(link_prediction_model, G, users_distances_to_centers)
-visualization(link_prediction_model_fuzzy, G, users_distances_to_centers_fuzzy)
+visualization(link_prediction_model, G, users_distances_to_centers, clustering_model.labels_)
+visualization(link_prediction_model_fuzzy, G, users_distances_to_centers_fuzzy, None)
 

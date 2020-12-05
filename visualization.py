@@ -3,7 +3,7 @@ import networkx as nx
 from recommender import predict_links
 
 
-def visualization(link_prediction_model, G, users_distances_to_centers):
+def visualization(link_prediction_model, G, users_distances_to_centers, colors):
     fig, ax = plt.subplots(figsize=(9, 9))
     pos = nx.spring_layout(G)
     plt.tight_layout()
@@ -11,7 +11,9 @@ def visualization(link_prediction_model, G, users_distances_to_centers):
 
     def draw():
         plt.clf()
-        nx.draw_networkx_nodes(G, pos=pos)
+        #nx.draw_networkx_nodes(G, pos=pos)
+        nx.draw_networkx_nodes(G, pos=pos, node_color=colors,
+                               cmap=plt.get_cmap("Paired"))
         nx.draw_networkx_edges(G, pos=pos)
 
     def onclick(event):
