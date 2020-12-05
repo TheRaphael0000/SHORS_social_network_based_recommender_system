@@ -4,7 +4,8 @@ from sklearn.metrics import normalized_mutual_info_score
 from matplotlib import pyplot as plt
 import numpy as np
 import collections
-
+import skfuzzy as fuzz
+from fcmeans import FCM
 
 def clustering(users_skills, n_clusters_range, plot=False):
     X = users_skills
@@ -76,3 +77,27 @@ def clustering(users_skills, n_clusters_range, plot=False):
 def evaluate_clustering(clusters_ground_truth, cluster_predicted):
     print("normalized_mutual_info_score", normalized_mutual_info_score(
         clusters_ground_truth, cluster_predicted))
+
+
+def fzclustering(users_skills, n_clusters_range, plot=False):
+    X = users_skills
+
+    n_clusters_range = list(n_clusters_range)
+
+    plotX = []
+
+    plotY = collections.defaultdict(list)
+
+    fzmodels = {}
+
+    # Find the best number of clusters
+    for n in n_clusters_range:
+        plotX.append(n)
+        cntr, u, u0, d, jm, p, fpc = fuzz.cluster.cmeans(
+            X, n, 2, error=0.005, maxiter=50, init=None)
+
+        fzmodels[n] = cntr, u, u0, d, jm, p, fpc
+
+    best_centers = max(fzmodels.values(), key=lambda x:x[6])
+
+    return best_centers
