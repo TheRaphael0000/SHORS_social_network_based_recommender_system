@@ -22,7 +22,7 @@ skills_sets = [
 seed = int(np.pi * 42)  # Seed for random number generation
 np.random.seed(seed)
 
-N = 500  # The number of nodes
+N = 200  # The number of nodes
 
 min_skill_sets = 1  # The minimum of skills set to add to a user
 max_skill_sets = 2  # The maximal of skills set to add to a user
