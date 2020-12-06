@@ -86,5 +86,6 @@ if __name__ == '__main__':
 
     # print("Using KMeans")
     # use_case_kmeans(users_skills, clusters_ground_truth)
-    print("Using FuzzyCMeans")
+
+    print("Using Fuzzy C-Means")
     use_case_fuzzy_cmean(users_skills, clusters_ground_truth)
