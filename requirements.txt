@@ -2,3 +2,4 @@ networkx
 numpy
 matplotlib
 scikit-learn
+scikit-fuzzy

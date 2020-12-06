@@ -46,7 +46,7 @@ def generate_skills(skills_sets, N, min_skill_sets, max_skill_sets, min_edits, m
     users_skills = np.array(users_skills)
     clusters_ground_truth = np.array(clusters_ground_truth)
 
-    return users_skills, clusters_ground_truth
+    return 1*users_skills, clusters_ground_truth
 
 
 def generate_graph(clusters_ground_truth, cluster_boost=3, m=2):
