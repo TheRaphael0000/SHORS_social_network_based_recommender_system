@@ -82,21 +82,13 @@ def evaluate_clustering(clusters_ground_truth, cluster_predicted):
 
 def fzclustering(users_skills, n_clusters_range, plot=False):
     X = users_skills
-
     n_clusters_range = list(n_clusters_range)
-
-    plotX = []
-
-    plotY = collections.defaultdict(list)
-
     fzmodels = {}
 
     # Find the best number of clusters
     for n in n_clusters_range:
-        plotX.append(n)
         cntr, u, u0, d, jm, p, fpc = fuzz.cluster.cmeans(
             X, n, 2, error=0.005, maxiter=50, init=None)
-
         # labels_
         cluster_membership = np.argmax(u, axis=0)
 

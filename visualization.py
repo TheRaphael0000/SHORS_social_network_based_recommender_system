@@ -17,6 +17,8 @@ def visualization(link_prediction_model, G, users_distances_to_centers, colors):
         nx.draw_networkx_edges(G, pos=pos)
 
     def onclick(event):
+        if not event.dblclick:
+            return
         x, y = event.xdata, event.ydata
         if x is None or y is None:
             return
@@ -41,8 +43,6 @@ def visualization(link_prediction_model, G, users_distances_to_centers, colors):
             Ys = [pos[closest_node][1], pos[p][1]]
             alpha = (len(top) - i) / len(top)
             plt.plot(Xs, Ys, color="red", alpha=alpha)
-        nx.draw_networkx_nodes(
-            G, nodelist=[closest_node], pos=pos, node_color="red")
         plt.xlim(*xlim)
         plt.ylim(*ylim)
         plt.draw()
