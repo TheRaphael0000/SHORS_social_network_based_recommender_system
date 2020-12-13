@@ -52,6 +52,7 @@ axs[1, 1].set_ylabel('Fuzzy CMeans')
 
 def use_case_fuzzy_cmean(users_skills, clusters_ground_truth):
     print("Clustering")
+    print("Using Fuzzy C-Means")
     fuzzyclustering_model = fzclustering(users_skills, range(*clustering_range), True)
     # returned values with order
     # Cluster centers. Data for each center along each feature provided for every cluster (of the c requested clusters).
@@ -87,6 +88,7 @@ def use_case_fuzzy_cmean(users_skills, clusters_ground_truth):
 
 def use_case_kmeans(users_skills, clusters_ground_truth):
     print("Clustering")
+    print("Using KMeans")
     clustering_model = clustering(users_skills, range(*clustering_range), True)
     print("- Number of clusters found", len(clustering_model.cluster_centers_))
     print("- Real number of clusters", len(skills_sets))
@@ -125,16 +127,14 @@ if __name__ == '__main__':
     print("Generating graph")
     G = generate_graph(clusters_ground_truth)
 
+    # Principal component analysis for ground Truth
     pca = PCA(n_components=2)
     pca.fit(users_skills)
     new_data = pca.transform(users_skills)
     axs[0, 0].scatter(new_data.T[0], new_data.T[1].T, c=clusters_ground_truth, alpha=0.5)
 
-
-    #print("Using KMeans")
     #use_case_kmeans(users_skills, clusters_ground_truth)
 
-    #print("Using Fuzzy C-Means")
     use_case_fuzzy_cmean(users_skills, clusters_ground_truth)
 
     plt.show()
