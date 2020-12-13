@@ -1,11 +1,12 @@
 import collections
 
 import numpy as np
-import skfuzzy as fuzz
 from matplotlib import pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.metrics import davies_bouldin_score, silhouette_score, calinski_harabasz_score
 from sklearn.metrics import normalized_mutual_info_score
+
+from fcm import FCM
 
 
 def clustering(users_skills, n_clusters_range, plot=False):
@@ -80,37 +81,47 @@ def evaluate_clustering(clusters_ground_truth, cluster_predicted):
         clusters_ground_truth, cluster_predicted))
 
 
+def fuzzy_part_coeff(u):
+    n = u.shape[1]
+
+    return np.trace(u.dot(u.T)) / float(n)
+
+
 def fzclustering(users_skills, n_clusters_range, plot=False):
     X = users_skills
     n_clusters_range = list(n_clusters_range)
 
-    fzmodels = {}
+    fzmodels_2 = {}
 
-    # The fuzzy partition coefficient (FPC)
-    fpcs = []
+    fpcs_2 = []
 
     # Find the best number of clusters
-    for n in n_clusters_range:
-        cntr, u, u0, d, jm, p, fpc = fuzz.cluster.cmeans(
-            X, n, 2, error=0.005, maxiter=50, init=None)
+    for n_clusters_ in n_clusters_range:
+        # another library
+        fuzzy_fcm = FCM(n_clusters=n_clusters_, max_iter=50, m=1.2, error=1e-5, random_state=88)
+        fuzzy_fcm.fit(X)
 
-        fpcs.append(fpc)
+        fcm_centers = fuzzy_fcm.centers
+        fcm_labels = fuzzy_fcm.predict(X)
 
-        # labels_
-        cluster_membership = np.argmax(u, axis=0)
-        fzmodels[n] = cntr, u, u0, d, jm, p, fpc, cluster_membership
+        fuzzy_clustering_coeff = fuzzy_fcm.partition_coefficient
+        pec = fuzzy_fcm.partition_entropy_coefficient
 
-    best_centers = min(fzmodels.values(), key=lambda x: x[6])
+        fpcs_2.append(fuzzy_clustering_coeff)
+
+        fzmodels_2[n_clusters_] = fcm_centers, fcm_labels, fuzzy_clustering_coeff
+
+    best_centers_2 = max(fzmodels_2.values(), key=lambda x: x[2])
 
     if plot:
         plt.figure()
         plt.title(f"Fuzzy c-means over number of clusters")
         plt.xlabel("Number of clusters")
         plt.xticks(n_clusters_range)
-        plt.ylabel("Fuzzy partition coefficient")
-        plt.plot(n_clusters_range, fpcs)
+        plt.ylabel("Fuzzy partition coefficient (FPC)")
+        plt.plot(n_clusters_range, fpcs_2)
         plt.tight_layout()
-        plt.savefig(f"clustering_Fuzzy.png")
+        plt.savefig(f"Fuzzy partition coefficient")
         plt.close()
 
-    return best_centers
+    return best_centers_2
