@@ -5,7 +5,6 @@ from generate_data import generate_skills, generate_graph
 from clustering import clustering, evaluate_clustering, fzclustering
 from recommender import link_prediction
 from visualization import visualization
-from misc import plot_graph
 from sklearn.decomposition import PCA
 from matplotlib import pyplot as plt
 
@@ -133,7 +132,7 @@ if __name__ == '__main__':
     new_data = pca.transform(users_skills)
     axs[0, 0].scatter(new_data.T[0], new_data.T[1].T, c=clusters_ground_truth, alpha=0.5)
 
-    #use_case_kmeans(users_skills, clusters_ground_truth)
+    use_case_kmeans(users_skills, clusters_ground_truth)
 
     use_case_fuzzy_cmean(users_skills, clusters_ground_truth)
 
