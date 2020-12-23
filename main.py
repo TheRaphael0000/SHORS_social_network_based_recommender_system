@@ -1,52 +1,12 @@
 import numpy as np
 from scipy.spatial.distance import cdist
 
-from generate_data import generate_skills, generate_graph
-from clustering import clustering, evaluate_clustering, fzclustering
+from generate_data import generate_skills_sets, generate_user_skills, generate_graph
+from clustering import clustering, fzclustering
 from recommender import link_prediction
 from visualization import visualization
 from sklearn.decomposition import PCA
 from matplotlib import pyplot as plt
-
-np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
-
-# Data generation parameters
-skills_sets = [
-    ["Assembly", "C", "C++", "Rust"],  # System
-    ["JavaScript", "HTML", "CSS", "PHP"],  # Web
-    ["Java", "C#", "Go"],  # OOP
-    ["bash", "zsh", "sh", "batch"],  # Scripting / Shells
-    ["Python", "R"],  # Statistics
-    ["SAP", "Microsoft Dynamics", "Odoo", "Spreadsheet"],  # Management
-]
-
-seed = int(np.pi * 42)  # Seed for random number generation
-np.random.seed(seed)
-
-use_fuzzy_clustering = True
-
-N = 500  # The number of nodes
-
-min_skill_sets = 1  # The minimum of skills set to add to a user
-max_skill_sets = 2  # The maximal of skills set to add to a user
-min_edits = 1  # Mimimum of random edition of the user skill sets
-max_edits = 3  # Maximal of random edition of the user skill sets
-
-# Possible distances metrics : "cityblock", "dice", "euclidean", "jaccard", "minkowski"
-clustering_range = (2, 10)
-distance_function = "euclidean"
-
-fig, axs = plt.subplots(2, 2, figsize=(12, 12))
-fig.suptitle('Principal component analysis', fontsize=16)
-axs[0, 0].set_ylabel('Ground Truth')
-axs[1, 0].set_ylabel('KMeans')
-axs[1, 1].set_ylabel('Fuzzy CMeans')
-
-
-#axs[1].plot(t3, np.cos(2*np.pi*t3), '--')
-#axs[1].set_xlabel('time (s)')
-#axs[1].set_title('subplot 2')
-#axs[1].set_ylabel('Undamped')
 
 
 def use_case_fuzzy_cmean(users_skills, clusters_ground_truth):
@@ -60,7 +20,6 @@ def use_case_fuzzy_cmean(users_skills, clusters_ground_truth):
 
     users_distances_to_centers = cdist(
         users_skills, fuzzyclustering_model[0], metric=distance_function)
-    print(evaluate_clustering(clusters_ground_truth, fuzzyclustering_model[1]))
 
     pca = PCA(n_components=2)
     #
@@ -94,7 +53,6 @@ def use_case_kmeans(users_skills, clusters_ground_truth):
 
     users_distances_to_centers = cdist(
         users_skills, clustering_model.cluster_centers_, metric=distance_function)
-    evaluate_clustering(clusters_ground_truth, clustering_model.labels_)
 
     pca = PCA(n_components=2)
     #
@@ -120,9 +78,42 @@ def use_case_kmeans(users_skills, clusters_ground_truth):
 
 
 if __name__ == '__main__':
+    np.set_printoptions(formatter={"float": lambda x: "{0:0.2f}".format(x)})
+    np.random.seed(int(np.pi * 42)) # Seed for random number generation
+
+    # Possible distances metrics : "cityblock", "dice", "euclidean", "jaccard", "minkowski"
+    clustering_range = (2, 10)
+    distance_function = "euclidean"
+
+    fig, axs = plt.subplots(2, 2, figsize=(12, 12))
+    fig.suptitle('Principal component analysis', fontsize=16)
+    axs[0, 0].set_ylabel('Ground Truth')
+    axs[1, 0].set_ylabel('KMeans')
+    axs[1, 1].set_ylabel('Fuzzy CMeans')
+
+    #axs[1].plot(t3, np.cos(2*np.pi*t3), '--')
+    #axs[1].set_xlabel('time (s)')
+    #axs[1].set_title('subplot 2')
+    #axs[1].set_ylabel('Undamped')
+
+    N = 500  # The number of nodes
+
+    # Data generation parameters
+    skills_sets = [
+        ["Assembly", "C", "C++", "Rust"],  # System
+        ["JavaScript", "HTML", "CSS", "PHP"],  # Web
+        ["Java", "C#", "Go"],  # OOP
+        ["bash", "zsh", "sh", "batch"],  # Scripting / Shells
+        ["Python", "R"],  # Statistics
+        ["SAP", "Microsoft Dynamics", "Odoo", "Spreadsheet"],  # Management
+    ]
+
+    min_edits = 1  # Mimimum of random edition of the user skill sets
+    max_edits = 3  # Maximal of random edition of the user skill sets
+
     print("Generating skills")
-    users_skills, clusters_ground_truth = generate_skills(
-        skills_sets, N, min_skill_sets, max_skill_sets, min_edits, max_edits)
+    users_skills, clusters_ground_truth = generate_user_skills(
+        skills_sets, N, min_edits, max_edits)
     print("Generating graph")
     G = generate_graph(clusters_ground_truth)
 

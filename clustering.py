@@ -4,7 +4,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.cluster import KMeans
 from sklearn.metrics import davies_bouldin_score, silhouette_score, calinski_harabasz_score
-from sklearn.metrics import normalized_mutual_info_score
 
 from fcm import FCM
 
@@ -61,7 +60,6 @@ def clustering(users_skills, n_clusters_range, plot=False):
     # making the metrics vote on a number of cluster to choose
     aggregated_best_n = collections.Counter(best_n.values())
     top_2 = aggregated_best_n.most_common(2)
-    print("Votes", top_2)
     # absolute majority
     if len(top_2) < 2:
         best_model = models[top_2[0][0]]
@@ -74,11 +72,6 @@ def clustering(users_skills, n_clusters_range, plot=False):
             return None
 
     return best_model
-
-
-def evaluate_clustering(clusters_ground_truth, cluster_predicted):
-    print("normalized_mutual_info_score", normalized_mutual_info_score(
-        clusters_ground_truth, cluster_predicted))
 
 
 def fuzzy_part_coeff(u):

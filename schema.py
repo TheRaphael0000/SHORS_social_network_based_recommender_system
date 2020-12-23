@@ -18,3 +18,18 @@ nx.draw_networkx_edges(G, pos=pos, edge_color="blue")
 plt.tight_layout()
 plt.axis("off")
 plt.savefig("schema.png")
+
+
+
+G = nx.Graph()
+G.add_edge(1,2)
+G.add_edge(1,3)
+
+plt.figure(figsize=(3, 3))
+pos = nx.spring_layout(G)
+nx.draw_networkx_nodes(G, pos=pos)
+nx.draw_networkx_labels(G, pos)
+nx.draw_networkx_edges(G, pos=pos, edge_color="blue")
+plt.tight_layout()
+plt.axis("off")
+plt.savefig("simple_graph.png")
