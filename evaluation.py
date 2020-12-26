@@ -72,7 +72,7 @@ def evaluate_link_prediciton():
 
     skills_sets = generate_skills_sets(10, 3, 6)
 
-    for i in [250, 500, 750, 1000, 1250, 1500, 1750]:
+    for i in [250, 500, 750, 1000, 1250, 1500, 1750, 2000, 2250, 2500]:
         print(i)
         X.append(i)
         users_skills, clusters_ground_truth = generate_user_skills(skills_sets, i, 1, 2)
