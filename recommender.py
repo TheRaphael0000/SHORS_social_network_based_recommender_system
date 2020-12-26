@@ -5,7 +5,6 @@ import numpy as np
 import networkx as nx
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score
 
 from sklearn.model_selection import GridSearchCV
 
@@ -14,22 +13,7 @@ from functools import reduce
 
 
 def link_prediction(G, users_distances_to_centers):
-    pos_edges = list(G.edges)
-
-    neg_edges = []
-    for i, neg_edge in enumerate(generate_neg_edges(G)):
-        neg_edges.append(neg_edge)
-        if len(neg_edges) >= len(pos_edges):
-            break
-
-    edges = neg_edges + pos_edges
-    y = [False] * len(neg_edges) + [True] * len(pos_edges)
-    X, cluster_names = generate_links_features(
-        edges, G, users_distances_to_centers)
-    X = pd.DataFrame(X)
-
-    print("- Features")
-    print(X)
+    X, y = get_features(G, users_distances_to_centers)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.33, random_state=42)
@@ -49,26 +33,32 @@ def link_prediction(G, users_distances_to_centers):
     #     mul, [len(pl) for pl in parameters.values()], 1))
     # model = GridSearchCV(model, parameters, n_jobs=-1, scoring="f1")
 
-    print("- Fitting")
     model.fit(X_train, y_train)
 
-    print("- Training results")
-    predicted = model.predict(X_train)
-    print(confusion_matrix(y_train, predicted))
-    print("Precision", precision_score(y_train, predicted))
-    print("Recall", recall_score(y_train, predicted))
-    print("F1-Score", f1_score(y_train, predicted))
+    predicted_train = model.predict(X_train)
 
     if hasattr(model, "best_params_"):
         print(model.best_params_)
 
-    print("- Predicting")
-    predicted = model.predict(X_test)
-    print(confusion_matrix(y_test, predicted))
-    print("Precision", precision_score(y_test, predicted))
-    print("Recall", recall_score(y_test, predicted))
-    print("F1-Score", f1_score(y_test, predicted))
-    return model
+    predicted_test = model.predict(X_test)
+    return model, y_train, predicted_train, y_test, predicted_test
+
+
+def get_features(G, users_distances_to_centers):
+    pos_edges = list(G.edges)
+
+    neg_edges = []
+    for i, neg_edge in enumerate(generate_neg_edges(G)):
+        neg_edges.append(neg_edge)
+        if len(neg_edges) >= len(pos_edges):
+            break
+
+    edges = neg_edges + pos_edges
+    y = [False] * len(neg_edges) + [True] * len(pos_edges)
+    X, cluster_names = generate_links_features(
+        edges, G, users_distances_to_centers)
+    X = pd.DataFrame(X)
+    return X, y
 
 
 def predict_links(model, G, node, users_distances_to_centers):

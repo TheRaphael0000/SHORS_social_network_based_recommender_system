@@ -3,6 +3,28 @@ import networkx as nx
 import secrets
 
 
+def get_named_synthetic_dataset(N=500):
+    # Data generation parameters
+    skills_sets = [
+        ["Assembly", "C", "C++", "Rust"],  # System
+        ["JavaScript", "HTML", "CSS", "PHP"],  # Web
+        ["Java", "C#", "Go"],  # OOP
+        ["bash", "zsh", "sh", "batch"],  # Scripting / Shells
+        ["Python", "R"],  # Statistics
+        ["SAP", "Microsoft Dynamics", "Odoo", "Spreadsheet"],  # Management
+    ]
+
+    min_edits = 1  # Mimimum of random edition of the user skill sets
+    max_edits = 3  # Maximal of random edition of the user skill sets
+
+    print("Generating skills")
+    users_skills, clusters_ground_truth = generate_user_skills(
+        skills_sets, N, min_edits, max_edits)
+    print("Generating graph")
+    G = generate_graph(clusters_ground_truth)
+    return G, users_skills, clusters_ground_truth
+
+
 def generate_skills_sets(nb_skills_sets, skill_sets_min_size, skill_sets_max_size):
     """Generate skill sets
     nb_skills_sets: The number of skills sets to create (jobs)
@@ -57,7 +79,6 @@ def generate_user_skills(skills_sets, N, min_edits, max_edits):
                     continue
                 i = np.random.choice(true_indices)
                 user_skills[i] ^= True
-
 
         users_skills.append(user_skills)
         clusters_ground_truth.append(skills_sets_indice)

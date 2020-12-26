@@ -8,6 +8,7 @@ import warnings
 from scipy.spatial.distance import cdist
 from sklearn.metrics import normalized_mutual_info_score
 from sklearn.exceptions import ConvergenceWarning
+from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score
 from matplotlib import pyplot as plt
 
 
@@ -70,6 +71,14 @@ def evaluate_link_prediciton():
     #
     # print("Link prediction")
     # link_prediction_model = link_prediction(G, users_distances_to_centers)
+
+
+def print_evaluate(y, predicted):
+    print("Confusion matrix: ")
+    print(confusion_matrix(y, predicted))
+    print(f"Precision : {precision_score(y, predicted):.2f}")
+    print(f"Recall : {recall_score(y, predicted):.2f}")
+    print(f"F1-Score : {f1_score(y, predicted):.2f}")
 
 
 if __name__ == '__main__':
